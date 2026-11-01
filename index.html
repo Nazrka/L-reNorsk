@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1418">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Norsk – учим норвежский</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main id="app"></main>
+<nav id="tabs" aria-label="Разделы">
+  <button data-tab="path"><span>🗺️</span>Путь</button>
+  <button data-tab="words"><span>📚</span>Слова</button>
+  <button data-tab="stories"><span>📖</span>Истории</button>
+  <button data-tab="grammar"><span>⚙️</span>Грамматика</button>
+  <button data-tab="games"><span>🎮</span>Игры</button>
+  <button data-tab="notebook"><span>📝</span>Блокнот</button>
+</nav>
+<script src="data.js"></script>
+<script src="data-nazarka.js"></script>
+<script src="words-a1.js"></script>
+<script src="words-a2.js"></script>
+<script src="words-verbs.js"></script>
+<script src="words-more.js"></script>
+<script src="words-a1b.js"></script>
+<script src="words-a2b.js"></script>
+<script src="words-a2c.js"></script>
+<script src="words-b1a.js"></script>
+<script src="words-b1b.js"></script>
+<script src="words-me.js"></script>
+<script src="stories-me.js"></script>
+<script src="stories-user.js"></script>
+<script src="extras.js"></script>
+<script src="dialogs-more.js"></script>
+<script src="app.js"></script>
+<script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
+</body>
+</html>
