@@ -54,10 +54,18 @@ const DIALOGS = [
     ["Har du noen spørsmål?", "У тебя есть вопросы?", ["Ja, jeg forstår ikke dette ordet.", "Да, я не понимаю это слово."], ["Nei, jeg liker kaffe.", "Нет, я люблю кофе."], ["Jeg heter Mira.", "Меня зовут Мира."]],
     ["Kan du lese teksten høyt?", "Можешь прочитать текст вслух?", ["Ja, jeg kan prøve.", "Да, я попробую."], ["Nei, jeg er en lærer.", "Нет, я учитель."], ["Jeg spiser frokost nå.", "Я сейчас завтракаю."]] ] }
 ];
+const DLG_CATS = [["all", "Все"], ["cafe", "☕ Кафе"], ["shop", "🛍️ Магазин"], ["street", "🧭 Улица"], ["friends", "👥 Друзья"], ["other", "📚 Другое"]];
+const DLG_OLD = { "В кафе": "cafe", "В ресторане": "cafe", "В магазине": "shop", "В продуктовом": "shop", "Спросить дорогу": "street", "В автобусе": "street", "В аэропорту": "street", "Знакомство": "friends", "Погода": "friends", "Семья": "friends", "Приглашение": "friends", "Звонок другу": "friends", "Хобби": "friends", "День рождения": "friends", "Опоздание": "friends" };
+let dlgCat = "all";
 function viewDialogs() {
-  app.innerHTML = `<button class="btn ghost" id="bk">← Назад</button><h1 style="margin-top:14px">Диалоги</h1><p class="sub">Выбирай правильные реплики. Верные фразы дают XP, ошибки идут в блокнот.</p>` +
-    DIALOGS.map((d, i) => `<button class="node" data-d="${i}" style="margin-bottom:10px"><i>${d.icon}</i><span>${d.title}<br><small style="color:var(--dim)">${d.lv}</small></span></button>`).join("");
-  $("#bk").onclick = viewGames; app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => runDialog(DIALOGS[b.dataset.d]));
+  DIALOGS.forEach(d => { if (!d.cat) d.cat = DLG_OLD[d.title] || "other"; });
+  const list = DIALOGS.map((d, i) => [d, i]).filter(x => dlgCat === "all" || x[0].cat === dlgCat);
+  app.innerHTML = `<button class="btn ghost sm" id="bk">← Назад</button><h1 style="margin-top:14px">Диалоги</h1><p class="sub">Выбирай правильные реплики. Верные фразы дают XP, ошибки идут в блокнот. Всего диалогов: ${DIALOGS.length}</p>
+    <div class="chips">${DLG_CATS.map(c => `<button class="chip ${dlgCat === c[0] ? "on" : ""}" data-c="${c[0]}">${c[1]}</button>`).join("")}</div>` +
+    (list.length ? list.map(([d, i]) => `<button class="node" data-d="${i}"><i>${d.icon}</i><span>${d.title}<br><small>${d.lv} · ${d.steps.length} реплик</small></span></button>`).join("") : '<p class="sub">Здесь пока пусто.</p>');
+  $("#bk").onclick = viewGames;
+  app.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { dlgCat = b.dataset.c; viewDialogs(); });
+  app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => runDialog(DIALOGS[b.dataset.d]));
 }
 function runDialog(d) {
   let i = 0, tr = false; const log = [];
@@ -115,7 +123,7 @@ function gameGender() {
 }
 function viewGames() {
   app.innerHTML = `<h1>Игры</h1><p class="sub">Тренируйся играя. Ошибки попадают в блокнот.</p>` +
-    [["dlg", "💬", "Диалоги", "Реплики в кафе, магазине, школе"], ["mt", "🧩", "Найди пару", "Слово и перевод на время"], ["gd", "🎨", "Угадай род", "en, ei или et?"], ["sp", "⚡", "Скоростной раунд", "60 секунд, комбо даёт время"], ["or", "🟩", "Ordle", "Угадай слово за 6 попыток"], ["ac", "🏆", "Достижения", `Уровень ${userLevel()} · ${Object.keys(S.ach).length}/${ACH.length}`]]
+    [["dlg", "💬", "Диалоги", "Кафе, магазин, улица, друзья"], ["mt", "🧩", "Найди пару", "Слово и перевод на время"], ["gd", "🎨", "Угадай род", "en, ei или et?"], ["sp", "⚡", "Скоростной раунд", "60 секунд, комбо даёт время"], ["or", "🟩", "Ordle", "Угадай слово за 6 попыток"], ["ac", "🏆", "Достижения", `Уровень ${userLevel()} · ${Object.keys(S.ach).length}/${ACH.length}`]]
       .map(g => `<button class="node" data-gm="${g[0]}" style="margin-bottom:10px"><i>${g[1]}</i><span>${g[2]}<br><small style="color:var(--dim)">${g[3]}</small></span></button>`).join("");
   const m = { dlg: viewDialogs, mt: gameMatch, gd: gameGender, sp: gameSpeed, or: gameOrdle, ac: viewAch };
   app.querySelectorAll("[data-gm]").forEach(b => b.onclick = m[b.dataset.gm]);
@@ -163,36 +171,6 @@ function gameOrdle() {
   };
   paint();
 }
-// --- свои истории ---
-function loadUserStories() { (S.userStories || []).forEach(s => { if (!STORIES.some(x => x.id === s.id)) STORIES.push(s); }); }
-function storyExtras() {
-  app.querySelector("h1").insertAdjacentHTML("afterend", `<button class="btn ghost" id="addst" style="margin:6px 0 12px">＋ Своя история</button>`);
-  $("#addst").onclick = storyForm;
-}
-function storyForm() {
-  let lv = "A1";
-  app.innerHTML = `<button class="btn ghost" id="bk">← Назад</button><h1 style="margin-top:14px">Новая история</h1>
-    <input type="text" id="st" class="search" placeholder="Название по-норвежски"><input type="text" id="sr" class="search" placeholder="Название по-русски">
-    <div class="chips">${LEVELS.map(l => `<button class="chip ${l === lv ? "on" : ""}" data-lv="${l}">${l}</button>`).join("")}</div>
-    <textarea id="sn" placeholder="Текст по-норвежски"></textarea><textarea id="stt" placeholder="Перевод (по желанию)" style="margin-top:8px"></textarea><div style="margin-top:10px"><button class="btn" id="sv">Сохранить</button></div>`;
-  $("#bk").onclick = viewStories;
-  app.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { lv = b.dataset.lv; app.querySelectorAll("[data-lv]").forEach(x => x.classList.toggle("on", x === b)); });
-  $("#sv").onclick = () => {
-    const no = $("#sn").value.trim(); if (!no) return toast("Вставь текст истории");
-    const s = { id: "u_" + Date.now(), level: lv, title: esc($("#st").value.trim() || "Моя история"), ru: esc($("#sr").value.trim() || "Своя история"), no: esc(no), tr: esc($("#stt").value.trim() || "Перевода нет."), vocab: [], mine: true };
-    S.userStories.push(s); STORIES.push(s); save(); viewStories();
-  };
-}
-function storyTools(s) {
-  const known = new Set(allWords().map(w => w.no.replace(/^(en|ei|et|å) /, "").toLowerCase()));
-  const cand = [...new Set(s.no.toLowerCase().match(/[a-zæøå]{4,}/g) || [])].filter(w => !known.has(w)).slice(0, 40).map(w => [w, "—"]);
-  const list = [...s.vocab, ...cand];
-  app.insertAdjacentHTML("beforeend", `<h2>Слова в блокнот</h2><div class="card"><div class="ex">Нажми на слово, чтобы сохранить его в блокнот.</div><div class="chips">${list.map((w, i) => `<button class="chip" data-w="${i}" title="${esc(w[1])}">${w[0]}</button>`).join("")}</div>${s.vocab.length ? '<button class="btn ghost" id="allv">Добавить весь разбор</button>' : ""}${s.mine ? ' <button class="btn ghost" id="del">Удалить историю</button>' : ""}</div>`);
-  app.querySelectorAll("[data-w]").forEach(b => b.onclick = () => { const w = list[b.dataset.w]; addMistake(w[0], w[1]); b.classList.add("used"); toast("В блокноте"); });
-  if ($("#allv")) $("#allv").onclick = () => { s.vocab.forEach(w => addMistake(w[0], w[1])); toast("Разбор добавлен в блокнот"); };
-  if ($("#del")) $("#del").onclick = () => { if (!confirm("Удалить историю?")) return; S.userStories = S.userStories.filter(x => x.id !== s.id); STORIES.splice(STORIES.indexOf(s), 1); save(); viewStories(); };
-}
-
 // --- Тренировка (кнопка в «Грамматике») ---
 const RULE_NAMES = { v2: "Глагол на 2-м месте", q: "Порядок слов в вопросах", past: "Прошедшее время", neg: "Где ставить «ikke»", modal: "Модальные глаголы", fut: "Будущее время", prep: "Предлоги", noun: "Существительные и артикли", pron: "Местоимения", sub: "Придаточные" };
 const TENSE_HELP = [
@@ -212,7 +190,7 @@ const VLEVEL = {
   A1: ["være", "ha", "gå", "spise", "drikke", "lage", "bo", "like", "se", "komme", "skrive", "lære", "hjelpe", "møte", "stå", "sove", "bruke", "ta", "gi", "få", "bli", "gjøre", "si", "snakke", "kjøpe", "lese", "høre", "vite", "finne", "sitte", "spille", "åpne", "vente", "jobbe", "hete", "kjøre", "reise"],
   A2: ["tenke", "forstå", "huske", "glemme", "spørre", "svare", "fortelle", "forklare", "løpe", "svømme", "danse", "synge", "le", "smile", "ringe", "sende", "betale", "koste", "arbeide", "studere", "prøve", "begynne", "slutte", "stoppe", "lukke", "trenge", "bestille", "hente", "vise", "bygge", "vaske", "koke", "bake", "falle", "dra", "våkne", "regne", "vinne", "treffe", "besøke", "velge", "planlegge", "sjekke", "lete", "søke", "elske", "føle", "kjenne", "selge", "tro", "håpe", "ønske", "ligge", "legge", "sette", "bære", "steke"]
 };
-const verbsOf = lv => VERBS.filter(v => (VLEVEL.A1.includes(v[0]) ? "A1" : VLEVEL.A2.includes(v[0]) ? "A2" : "B1") === lv);
+const verbsOf = lv => VERBS.filter(v => (LEVELS.find(l => (VLEVEL[l] || []).includes(v[0])) || "B1") === lv);
 function verbTask(v, t) {
   const f = verbForms(v), h = TENSE_HELP[t];
   return { type: "type", hint: `${h[1]}. Пример: ${h[2]}`, q: `«${v[5]}» (å ${v[0]}) → ${h[0]}`, a: f[t], no: f[t], ru: `${v[0]} (${v[5]}): ${h[0]}` };
@@ -223,7 +201,7 @@ function verbEx(n, tenses, pool) {
 }
 const VERB_MODES = [["Все формы", [1, 2, 3, 4, 5, 6]], ["Настоящее", [1]], ["Прошедшее простое", [2]], ["Перфект", [3]], ["Плюсквамперфект", [4]], ["Будущее", [5]], ["Повелительное", [6]]];
 function genderEx(n, lv) {
-  return shuffle(allWords().filter(w => genderOf(w.no) && (!lv || w.level === lv))).slice(0, n).map(w => ({ type: "choice", hint: "Какой артикль?", q: w.no.replace(/^(en|ei|et) /, ""), a: genderOf(w.no), opts: ["en", "ei", "et"], no: w.no, ru: w.ru }));
+  return shuffle(allWords().filter(w => genderOf(w.no) && (!lv || w.level === lv))).slice(0, n).map(w => ({ type: "choice", hint: "Какой артикль?", q: w.no.replace(/^(en|ei|et) /, ""), a: genderOf(w.no), opts: ["en", "ei", "et"], fixed: true, no: w.no, ru: w.ru }));
 }
 const ruleEx = (r, n, lv) => sentenceExercises(shuffle(BUILD.filter(b => (!r || b.rule === r) && (!lv || b.lv === lv))).slice(0, n).map(b => [b.no, b.ru]));
 const wordEx = (lv, n) => { const pool = allWords(); return wordExercises(shuffle(pool.filter(w => w.level === lv)).slice(0, n), pool); };

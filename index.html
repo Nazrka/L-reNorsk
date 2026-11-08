@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1418">
+<meta name="theme-color" content="#0a1116">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -20,7 +20,10 @@
   <button data-tab="grammar"><span>⚙️</span>Грамматика</button>
   <button data-tab="games"><span>🎮</span>Игры</button>
   <button data-tab="notebook"><span>📝</span>Блокнот</button>
+  <button data-tab="settings" class="desk"><span>⚙️</span>Настройки</button>
 </nav>
+<noscript>Для работы приложения нужен JavaScript.</noscript>
+<!-- данные -->
 <script src="data.js"></script>
 <script src="data-nazarka.js"></script>
 <script src="words-a1.js"></script>
@@ -33,11 +36,33 @@
 <script src="words-b1a.js"></script>
 <script src="words-b1b.js"></script>
 <script src="words-me.js"></script>
+<script src="words-batch.js"></script>
+<script src="words-b1c.js"></script>
+<script src="words-b2a.js"></script>
+<script src="words-c1a.js"></script>
+<script src="words-more2.js"></script>
+<script src="words-a2d.js"></script>
+<script src="words-b-big.js"></script>
 <script src="stories-me.js"></script>
 <script src="stories-user.js"></script>
-<script src="extras.js"></script>
-<script src="dialogs-more.js"></script>
+<!-- грамматика (контент) -->
+<script src="grammar.js"></script>
+<script src="grammar-noun.js"></script>
+<script src="grammar-verb.js"></script>
+<script src="grammar-glue.js"></script>
+<script src="grammar-parts.js"></script>
+<!-- логика и экраны -->
 <script src="app.js"></script>
+<script src="extras.js"></script>
+<script src="verbs-more.js"></script>
+<script src="dialogs-more.js"></script>
+<script src="dialogs-extra.js"></script>
+<script src="view-words.js"></script>
+<script src="view-stories.js"></script>
+<script src="view-grammar.js"></script>
+<script src="view-path.js"></script>
+<script src="view-notebook.js"></script>
+<script src="main.js"></script>
 <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
 </body>
 </html>

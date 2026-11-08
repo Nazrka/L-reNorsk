@@ -1,0 +1,3 @@
+// ===== Запуск =====
+loadUserStories();
+go("path");
